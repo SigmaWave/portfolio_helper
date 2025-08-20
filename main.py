@@ -1,5 +1,4 @@
 import os
-import time
 
 import numpy as np
 import pandas as pd
@@ -13,19 +12,11 @@ from colorama import Fore, Back, Style
 import yfinance as yf
 
 plt.rcdefaults()
+from helpers import load_data, import_data, timer
 
-
-
-
-def timer(func):
-    def wrapper(*args, **kwargs):
-        start_time = time.time()
-        result = func(*args, **kwargs)
-        end_time = time.time()
-        elapsed_time = end_time - start_time
-        print(f"{Fore.GREEN}Function '{func.__name__}': {elapsed_time:.2f}s{Fore.RESET}\n")
-        return result
-    return wrapper
+START = "2022-01-01"
+END = "2025-01-01"
+DATA_DIR = "./StockData"
 
 
 stocks = ['SPY',
@@ -35,13 +26,8 @@ stocks = ['SPY',
           'NVDA',
           'JPM']
 
-START = "2022-09-20"
-END = "2024-01-01"
-
 two_points  = [('2024-05-17',72),('2024-06-14',58)]
 
-DATA_DIR = "./StockData"
-os.makedirs(DATA_DIR, exist_ok=True)
 
 def yf_to_mpf(df, ticker=None):
     # If MultiIndex columns (e.g., ('Price','Open'),('Price','High') or ('Open','BNP.PA') etc.)
@@ -74,44 +60,17 @@ def yf_to_mpf(df, ticker=None):
     df = df.sort_index()
     return df
 
-def import_data(symbol, start_date, end_date):
-    """
-    Download stock data with yfinance and save to CSV.
-    """
-    df = yf.download(symbol, start=start_date, end=end_date, progress=True)
-    if df.empty:
-        raise ValueError(f"No data returned for {symbol}. Check ticker and dates.")
-    print(df.head())
-    df = df.droplevel(1, axis=1)
-    # yfinance already returns a DataFrame with OHLCV columns
-    df.index = pd.to_datetime(df.index)
-    df = df.sort_index()
-    print(df.head())
-    out_path = os.path.join(DATA_DIR, f"{symbol}.csv")
-    df.to_csv(out_path)
-    print(f"{Fore.GREEN}Saved {out_path}{Style.RESET_ALL}")
-    return df
-
-
-def load_data(symbol, START, END):
-    """
-    Load data from CSV if available, otherwise download it.
-    """
-    path = os.path.join(DATA_DIR, f"{symbol}.csv")
-    if not os.path.exists(path):
-        print(f"{Fore.RED}File not found — importing now…{Style.RESET_ALL}")
-        return import_data(symbol, START, END)
-
-    data = pd.read_csv(path, index_col="Date", parse_dates=True)
-    print(f"{Fore.GREEN}Loaded {symbol} from {path}{Style.RESET_ALL}")
-    return data
-
-
 
 if __name__ == "__main__":
-    data = import_data('BNP.PA', START, END)
-
+    data = import_data('BNP.PA', START, END, DATA_DIR)
     print(data.columns)
+    print(data.head())
+    print(data.tail())
+
+    data = load_data('BNP.PA', START, END, DATA_DIR)
+    print(data.columns)
+    print(data.head())
+    print(data.tail())
     mpf.plot(data, type='candle', volume=True,
     hlines=dict(hlines=[53.5,73],colors=['g','r'],linestyle='-.'), 
     vlines=dict(vlines='2024-03-30',linewidths=120,alpha=0.4, colors='g'),
