@@ -6,3 +6,4 @@ openbb
 pytimetk
 colorama
 yfinance
+seaborn

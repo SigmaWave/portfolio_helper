@@ -7,7 +7,7 @@ import mplfinance as mpf
 
 import openbb
 import pytimetk as tk
-
+import seaborn as sns
 from colorama import Fore, Back, Style
 import yfinance as yf
 
@@ -24,56 +24,46 @@ stocks = ['SPY',
           'TSLA',
           'AMZN',
           'NVDA',
-          'JPM']
+          'JPM',
+          'GLD', #Gold
+          'TLT' #iShares 20+ Year Treasury Bond ETF
+          ]
 
 two_points  = [('2024-05-17',72),('2024-06-14',58)]
 
 
-def yf_to_mpf(df, ticker=None):
-    # If MultiIndex columns (e.g., ('Price','Open'),('Price','High') or ('Open','BNP.PA') etc.)
-    if isinstance(df.columns, pd.MultiIndex):
-        # If ticker is present in last level, select it
-        if ticker and ticker in df.columns.get_level_values(-1):
-            df = df.xs(ticker, axis=1, level=-1)
-        # If first level is something like "Price", drop it
-        elif 'Open' in df.columns.get_level_values(-1):
-            df = df.droplevel(0, axis=1)
-        else:
-            # fallback: keep last level
-            df = df.droplevel(0, axis=1)
-
-    # Standardize column names
-    df = df.rename(columns=lambda c: str(c).strip().title())
-
-    # Keep only what mplfinance needs
-    cols = ["Open", "High", "Low", "Close", "Volume"]
-    df = df[[c for c in cols if c in df.columns]]
-
-    # Ensure numeric dtypes
-    for c in df.columns:
-        df[c] = pd.to_numeric(df[c], errors="coerce")
-    # Drop rows missing OHLC
-    df = df.dropna(subset=[c for c in ["Open","High","Low","Close"] if c in df.columns])
-
-    # Sort and ensure DateTimeIndex
-    df.index = pd.to_datetime(df.index)
-    df = df.sort_index()
-    return df
-
-
 if __name__ == "__main__":
-    data = import_data('BNP.PA', START, END, DATA_DIR)
-    print(data.columns)
-    print(data.head())
-    print(data.tail())
+    returns = pd.concat(
+    {ticker: load_data(ticker, START, END, DATA_DIR)["Close"].pct_change() for ticker in stocks},
+    axis=1
+    )
+
+    # drop the NaN from first row
+    returns = returns.dropna()
+    # correlation matrix
+    corr_matrix = returns.corr()
+
+    # ax = sns.heatmap(corr_matrix, cmap='RdYlGn', linewidths=.1)
+    # plt.show()
 
     data = load_data('BNP.PA', START, END, DATA_DIR)
-    print(data.columns)
-    print(data.head())
-    print(data.tail())
-    mpf.plot(data, type='candle', volume=True,
+
+    mc = mpf.make_marketcolors(up='g',down='r',
+                           edge='black',
+                           )
+    s  = mpf.make_mpf_style(marketcolors=mc)
+
+
+    candle_kwargs = dict(type='candle',mav=(50,100,200), volume=True, )
+    mc = mpf.make_marketcolors(up='g',down='r',
+                            edge='black')
+    s  = mpf.make_mpf_style(marketcolors=mc)
+
+    mpf.plot(data, type='candle', volume=True, mav = (50,100,200),
     hlines=dict(hlines=[53.5,73],colors=['g','r'],linestyle='-.'), 
     vlines=dict(vlines='2024-03-30',linewidths=120,alpha=0.4, colors='g'),
-    alines=two_points
+    alines=two_points,
+    title='BNP.PA',   # color volume red/green automatically
+    style="yahoo"
     # addplot=dojis_plot
     )
