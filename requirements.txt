@@ -1,0 +1,8 @@
+numpy
+pandas
+matplotlib
+mplfinance
+openbb
+pytimetk
+colorama
+yfinance
