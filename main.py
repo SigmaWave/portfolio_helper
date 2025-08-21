@@ -1,18 +1,14 @@
-import os
-
-import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import mplfinance as mpf
 
-import openbb
 import pytimetk as tk
 import seaborn as sns
 from colorama import Fore, Back, Style
 import yfinance as yf
 
 plt.rcdefaults()
-from helpers import load_data, import_data, timer
+from helpers import load_data, breakout_finder
 
 START = "2022-01-01"
 END = "2025-01-01"
@@ -67,3 +63,6 @@ if __name__ == "__main__":
     style="yahoo"
     # addplot=dojis_plot
     )
+
+    out = breakout_finder(data, prd=5, bo_len=200, cwidthu=0.03, mintest=2)
+    print(out)
