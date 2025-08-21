@@ -1,7 +1,11 @@
 import pandas as pd
 import mplfinance as mpf
 import numpy as np
-from config import START, END
+from config import START, END, DATA_DIR, STOCKS
+import seaborn as sns
+import matplotlib.pyplot as plt
+from helpers import load_data
+
 
 def mav_plot(df, lengths=(50, 100, 200)):
     addplots = []
@@ -182,3 +186,15 @@ def support_resistance_breakout(df,
         "bull_boxes":   bull_boxes,
         "bear_boxes":   bear_boxes,
     }
+
+
+def show_corr_matrix():
+    returns = pd.concat(
+    {ticker: load_data(ticker, START, END, DATA_DIR)["Close"].pct_change() for ticker in STOCKS},
+    axis=1
+    )
+    returns = returns.dropna() # drop the NaN from first row
+    # correlation matrix
+    corr_matrix = returns.corr()
+    ax = sns.heatmap(corr_matrix, cmap='RdYlGn', linewidths=.1)
+    plt.show()

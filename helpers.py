@@ -84,7 +84,7 @@ def support_resistance_fills(df, box, color):
     return fills
 
 
-def breakouts_plots(df, breakout_output):
+def breakouts_plot(df, breakout_output):
     bull_signals = breakout_output["bull_signals"]
     bear_signals = breakout_output["bear_signals"]
     
