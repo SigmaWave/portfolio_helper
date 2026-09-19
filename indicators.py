@@ -198,3 +198,22 @@ def show_corr_matrix():
     corr_matrix = returns.corr()
     ax = sns.heatmap(corr_matrix, cmap='RdYlGn', linewidths=.1)
     plt.show()
+
+def rsi(df):
+    '''
+    Formula: RSI = 100 - (100 / (1 + RS))
+    RS = Average Gain / Average Loss
+
+    Useful in trending market, looks at the velocity of price movements.(Source: Investopedia)
+    '''
+def rsi(close_prices, length) -> pd.Series:
+    delta = close_prices.diff()
+    ema = lambda s: s.ewm(alpha=1 / length).mean()
+
+    up, down = delta.clip(lower=0), delta.clip(upper=0).abs()
+
+    roll_up, roll_down = ema(up), ema(down)
+    rs = roll_up / roll_down
+    rsi = 100.0 - (100.0 / (1.0 + rs))
+
+    return rsi

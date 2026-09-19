@@ -15,12 +15,12 @@ if __name__ == "__main__":
     data = load_data('BNP.PA', START, END, DATA_DIR)
     view_data = data.loc[START:END]
 
-    show_corr_matrix()
+    # show_corr_matrix()
     # Add plots and fills
     addplots = []
     fills = []
 
-    breakout_output = support_resistance_breakout(view_data, prd=5, bo_len=100, cwidthu=0.04, mintest=2)
+    breakout_output = support_resistance_breakout(view_data, prd=4, bo_len=300, cwidthu=0.04, mintest=1)
 
     # Add plots
     addplots.extend(breakouts_plot(view_data, breakout_output))
@@ -29,6 +29,7 @@ if __name__ == "__main__":
     # Fills
     fills.extend(support_resistance_fills(view_data, breakout_output["bull_boxes"], 'g'))
     fills.extend(support_resistance_fills(view_data, breakout_output["bear_boxes"], 'r'))
+
 
     kwargs = {}
     kwargs["addplot"] = addplots
@@ -49,6 +50,3 @@ if __name__ == "__main__":
 
 #hlines=dict(hlines=[53.5,73],colors=['g','r'],linestyle='-.'), 
 #vlines=dict(vlines='2024-03-30',linewidths=120,alpha=0.4, colors='g'),
-
-out = support_resistance_breakout(data, prd=5, bo_len=200, cwidthu=0.03, mintest=2)
-print(out)

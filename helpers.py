@@ -73,7 +73,6 @@ def load_data(symbol, START, END, data_dir):
 def support_resistance_fills(df, box, color):
     fills = []
     n = len(df.index)
-    print(f"{Fore.BLUE}Boxes: {box}{Fore.RESET}")
     if box:
         for b in box:
             where = (df.index >= pd.Timestamp(b["bar_start"])) & (df.index <= pd.Timestamp(b["bar_end"]))
@@ -105,5 +104,4 @@ def breakouts_plot(df, breakout_output):
     if not signals_df["BearPrice"].isna().all():
         addplots.append(mpf.make_addplot(signals_df["BearPrice"], type="scatter", marker="v",
                                          markersize=100, color="red"))
-    print(f"{Fore.BLUE}Addplots for signals: {addplots}{Fore.RESET}")
     return addplots
